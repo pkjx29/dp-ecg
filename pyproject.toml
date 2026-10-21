@@ -1,0 +1,12 @@
+[project]
+name = "dpecg"
+version = "0.1.0"
+description = "Differential privacy on PTB-XL ECG: from-scratch mechanisms and DP-SGD"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
