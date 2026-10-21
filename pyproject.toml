@@ -1,8 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "dpecg"
-version = "0.1.0"
-description = "Differential privacy on PTB-XL ECG: from-scratch mechanisms and DP-SGD"
+name = "dp-ecg"
+version = "0.2.0"
+description = "Differentially private ECG classification on PTB-XL: from-scratch DP mechanisms, Opacus DP-SGD, membership inference"
+readme = "README.md"
 requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Priyanshu Kumar Jha" }]
+
+[project.scripts]
+dp-ecg = "dp_ecg.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -10,3 +20,16 @@ where = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+markers = ["slow: needs the downloaded PTB-XL data or minutes of CPU"]
+filterwarnings = [
+    "ignore:Full backward hook is firing:UserWarning",
+    "ignore:Secure RNG turned off:UserWarning",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E741"]
