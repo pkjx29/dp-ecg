@@ -1,0 +1,21 @@
+verification:              # exhaustive toy-universe checks
+  epsilon: 1.0
+  delta: 1.0e-5
+summary_statistics:
+  population: all_records  # all 21,799 PTB-XL records
+  total_epsilon: 1.0       # whole release, split across queries below (basic composition)
+  total_delta: 1.0e-6
+  seed: 2026
+  queries:
+    - {name: record_count, kind: count, mechanism: laplace, epsilon_share: 0.1}
+    - {name: mean_heart_rate_bpm, kind: mean, feature: hr_bpm, mechanism: laplace, epsilon_share: 0.2}
+    - {name: mean_qrs_width_s, kind: mean, feature: qrs_width_s, mechanism: laplace, epsilon_share: 0.15}
+    - {name: mean_sokolow_lyon_mv, kind: mean, feature: sokolow_mv, mechanism: gaussian, epsilon_share: 0.15, delta_share: 0.5}
+    - {name: mean_age_years, kind: mean, feature: age, mechanism: gaussian, epsilon_share: 0.15, delta_share: 0.5}
+    - {name: heart_rate_histogram, kind: histogram, feature: hr_bpm, mechanism: laplace, epsilon_share: 0.25,
+       bin_edges: [30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180]}
+  error_diagnostic:        # internal-only: RMSE of repeated releases vs theory
+    feature: hr_bpm
+    epsilons: [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0]
+    delta: 1.0e-6
+    repeats: 2000

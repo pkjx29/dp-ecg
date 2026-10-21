@@ -1,0 +1,16 @@
+model:
+  channels: [32, 64, 64, 128]
+  kernel_sizes: [7, 5, 5, 3]
+  groupnorm_groups: 8        # GroupNorm instead of BatchNorm: per-sample gradients stay valid
+  dropout: 0.1
+train:
+  optimizer: adam
+  learning_rate: 0.001
+  weight_decay: 0.0
+  batch_size: 128
+  epochs: 12
+  seed: 0
+  # Select the epoch with the best validation AUROC; choose the decision
+  # threshold on validation to maximise balanced accuracy (class imbalance:
+  # about 22% MI).
+  selection_metric: auroc

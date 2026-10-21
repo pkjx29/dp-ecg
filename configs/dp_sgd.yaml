@@ -1,0 +1,16 @@
+# Requested targets; the achieved epsilon from the accountant is recorded separately.
+target_epsilons: [1.0, 2.0, 4.0, 8.0]
+delta: 1.0e-5              # about 1/(10 n) for n_train = 9,286 records
+max_grad_norm: 1.0
+accountant: rdp
+poisson_sampling: true
+secure_mode: false         # torchcsprng has no build for the installed torch; see docs/limitations.md
+epsilon_tolerance: 0.01    # flag a run if achieved epsilon > target * (1 + tolerance)
+train:
+  optimizer: adam
+  learning_rate: 0.002
+  weight_decay: 0.0
+  batch_size: 256          # expected batch size under Poisson sampling
+  epochs: 12
+  seeds: [0]
+  selection_metric: auroc

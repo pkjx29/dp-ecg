@@ -1,0 +1,9 @@
+# Black-box membership inference. Attacker knows the record and its true label
+# and can query the model for its predicted probability.
+scores: [loss, max_probability, entropy]
+seed: 7
+bootstrap_resamples: 1000
+fpr_targets: [0.01, 0.1]
+# Non-members for threshold calibration: validation fold. Non-members for
+# evaluation: test fold. Members: two disjoint random halves of the training
+# set, sized to match. The test fold is never used to set a threshold.

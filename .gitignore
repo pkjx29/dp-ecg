@@ -1,6 +1,13 @@
 .venv/
-data/
+data/raw/
+data/processed/
+artifacts/checkpoints/
+artifacts/logs/
+artifacts/metrics/runs_smoke/
+artifacts/metrics/*_smoke.json
 __pycache__/
 *.pyc
 .pytest_cache/
+.ruff_cache/
 .DS_Store
+.env

@@ -30,7 +30,7 @@ from __future__ import annotations
 import numpy as np
 from scipy.signal import butter, find_peaks, sosfiltfilt, welch
 
-from .data import FS, LEADS
+from .metadata import FS, LEADS
 
 _SOS = butter(4, [0.5, 40.0], btype="bandpass", fs=FS, output="sos")
 

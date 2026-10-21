@@ -1,0 +1,24 @@
+# PTB-XL v1.0.3, 100 Hz records. See docs/dataset_card.md.
+dataset_root: data/raw/ptb-xl
+processed_dir: data/processed
+mirror_url: https://physionet-open.s3.amazonaws.com/ptb-xl/1.0.3/
+sampling_rate_hz: 100
+n_samples: 1000          # 10 s at 100 Hz
+n_leads: 12
+task:
+  # Binary task. A record is kept only if its set of diagnostic superclasses
+  # is exactly {negative} or exactly {positive}; everything else is excluded.
+  negative: NORM
+  positive: MI
+folds:                   # official patient-stratified folds
+  train: [1, 2, 3, 4, 5, 6, 7, 8]
+  val: [9]
+  test: [10]
+preprocessing:
+  bandpass_hz: [0.5, 40.0]
+  filter_order: 4
+  # Fixed, data-independent amplitude handling (no statistics fitted on the
+  # data, so preprocessing has no privacy cost): divide by this scale in mV
+  # and clip to +-clip_mv.
+  amplitude_scale_mv: 1.0
+  clip_mv: 5.0
