@@ -22,6 +22,7 @@ def test_labels_and_splits(tmp_path):
     assert list(db.index) == [1, 2, 3]
     # NORM only -> 0; MI -> 1; NORM + CD -> 1 (any abnormal superclass)
     assert list(db["label"]) == [0, 1, 1]
+    assert list(load_metadata(tmp_path, labelled_only=False)["label"]) == [0, 1, 1, -1]
     m = split_masks(db)
     assert list(m["train"]) == [True, False, False]
     assert list(m["reserved"]) == [False, True, False]

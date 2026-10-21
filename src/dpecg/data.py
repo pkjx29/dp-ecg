@@ -3,7 +3,9 @@
 Task: binary classification, NORMAL vs ABNORMAL 12-lead ECG.
   * label 0 = the record's only diagnostic superclass is NORM
   * label 1 = at least one of MI, STTC, CD, HYP is present
-  * records with no diagnostic superclass are dropped
+  * label -1 = no diagnostic superclass (411 of 21,799 records). These are
+    kept for the dataset-wide DP summary statistics but never used to train
+    or test a classifier.
 The superclass mapping follows the dataset authors' own example code
 (scp_statements.csv, column diagnostic_class).
 
@@ -27,7 +29,7 @@ RESERVED_FOLDS = (9,)
 TEST_FOLDS = (10,)
 
 
-def load_metadata(root: str | Path) -> pd.DataFrame:
+def load_metadata(root: str | Path, labelled_only: bool = True) -> pd.DataFrame:
     root = Path(root)
     db = pd.read_csv(root / "ptbxl_database.csv", index_col="ecg_id")
     db["scp_codes"] = db["scp_codes"].apply(ast.literal_eval)
@@ -39,9 +41,8 @@ def load_metadata(root: str | Path) -> pd.DataFrame:
         return {diag[c] for c in codes if c in diag.index}
 
     db["superclasses"] = db["scp_codes"].apply(superclasses)
-    db = db[db["superclasses"].apply(len) > 0].copy()
-    db["label"] = db["superclasses"].apply(lambda s: int(s != {"NORM"}))
-    return db
+    db["label"] = db["superclasses"].apply(lambda s: -1 if not s else int(s != {"NORM"}))
+    return db[db["label"] >= 0].copy() if labelled_only else db
 
 
 def split_masks(db: pd.DataFrame) -> dict[str, np.ndarray]:

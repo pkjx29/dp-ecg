@@ -1,4 +1,5 @@
-"""Extract features for every labelled PTB-XL record and cache them.
+"""Extract features for every PTB-XL record (all 21,799) and cache them.
+Records without a diagnostic label are stored with y = -1.
 
 Usage: python scripts/build_features.py [--root data/raw/ptb-xl] [--out data/features.npz]
 """
@@ -37,7 +38,7 @@ def main() -> None:
     ap.add_argument("--out", default="data/features.npz")
     args = ap.parse_args()
 
-    db = load_metadata(args.root)
+    db = load_metadata(args.root, labelled_only=False)
     jobs = list(zip(db["filename_lr"], db["age"].fillna(60.0), db["sex"].astype(float)))
     print(f"Extracting {len(FEATURE_NAMES)} features from {len(jobs)} records ...", flush=True)
     with Pool(os.cpu_count(), initializer=_init, initargs=(args.root,)) as pool:
@@ -48,7 +49,8 @@ def main() -> None:
         patient_id=db["patient_id"].to_numpy(), fold=db["strat_fold"].to_numpy(),
         feature_names=np.array(FEATURE_NAMES))
     nan_rate = np.isnan(X).mean(axis=0)
-    print(f"Saved {X.shape} to {args.out}; label=1 (abnormal) share {db['label'].mean():.3f}; "
+    print(f"Saved {X.shape} to {args.out}; labelled {(db['label'] >= 0).sum()}, "
+          f"abnormal share among labelled {db.loc[db['label'] >= 0, 'label'].mean():.3f}; "
           f"worst NaN rate {nan_rate.max():.4f} ({FEATURE_NAMES[int(nan_rate.argmax())]})")
 
 
