@@ -165,3 +165,65 @@ def test_dp_standardizer_recovers_moments(rng):
     np.testing.assert_allclose(mean, X.mean(0), rtol=0.05, atol=0.05)
     np.testing.assert_allclose(std, X.std(0), rtol=0.05)
     assert cost.epsilon == 0.5 and cost.delta == 1e-6
+
+
+# ---------------------------------------------------------------- every neighbour of a small dataset
+
+SMALL = np.array([62.0, 75.0, 58.0, 110.0, 91.0, 47.0, 180.0, 70.0])  # heart rates, bpm
+LO, HI = 20.0, 250.0
+
+
+def _neighbours(data, lo, hi):
+    """All add/remove neighbours we can enumerate: remove each record, or add
+    a record at the bounds, the midpoint, or a value outside the bounds
+    (which clipping must neutralise)."""
+    removed = [np.delete(data, i) for i in range(len(data))]
+    added = [np.append(data, v) for v in (lo, hi, (lo + hi) / 2, hi + 1000.0, lo - 1000.0)]
+    return removed + added
+
+
+def _clipped_centered_sum(d):
+    c = (LO + HI) / 2
+    return float((np.clip(d, LO, HI) - c).sum())
+
+
+@pytest.mark.parametrize("eps", [0.1, 1.0])
+def test_laplace_dp_holds_on_every_neighbour(eps):
+    """For each neighbour D', the worst-case log density ratio of the released
+    sum is |f(D) - f(D')| / b, and must not exceed ε."""
+    sens = M.bounded_sum_sensitivity(LO - (LO + HI) / 2, HI - (LO + HI) / 2)
+    b = M.laplace_scale(sens, eps)
+    y = np.linspace(-3000, 3000, 60_001)
+    fD = _clipped_centered_sum(SMALL)
+    worst = 0.0
+    for nb in _neighbours(SMALL, LO, HI):
+        fN = _clipped_centered_sum(nb)
+        log_ratio = laplace.logpdf(y, fD, b) - laplace.logpdf(y, fN, b)
+        worst = max(worst, np.abs(log_ratio).max())
+    assert worst <= eps + 1e-9
+
+
+@pytest.mark.parametrize("eps,delta", [(0.5, 1e-5), (0.9, 1e-6)])
+def test_gaussian_dp_holds_on_every_neighbour(eps, delta):
+    """For each neighbour, the exact δ at this ε for the actual shift
+    |f(D) - f(D')| must be within the δ the mechanism promises."""
+    sens = (HI - LO) / 2
+    sigma = M.gaussian_sigma(sens, eps, delta)
+    fD = _clipped_centered_sum(SMALL)
+    for nb in _neighbours(SMALL, LO, HI):
+        shift = abs(fD - _clipped_centered_sum(nb))
+        if shift == 0:
+            continue
+        assert M.gaussian_exact_delta(shift, sigma, eps) <= delta
+
+
+@pytest.mark.parametrize("eps", [0.1, 1.0])
+def test_laplace_histogram_dp_holds_on_every_neighbour(eps):
+    """Vector release: independent Laplace per bin, so the log ratio is the
+    sum over bins of |Δcount_k| / b, which must stay within ε."""
+    edges = np.linspace(LO, HI, 11)
+    b = M.laplace_scale(1.0, eps)
+    hD = np.histogram(SMALL, edges)[0]
+    for nb in _neighbours(SMALL, LO, HI):
+        hN = np.histogram(nb, edges)[0]  # same call as dp_histogram
+        assert np.abs(hD - hN).sum() / b <= eps + 1e-12
