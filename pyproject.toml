@@ -27,9 +27,9 @@ filterwarnings = [
 ]
 
 [tool.ruff]
-line-length = 110
+line-length = 120
 target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP"]
-ignore = ["E741"]
+ignore = ["E741", "B905"]  # zip lengths are checked explicitly where they matter

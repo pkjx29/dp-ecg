@@ -3,8 +3,16 @@
 from __future__ import annotations
 
 import numpy as np
-from sklearn.metrics import (accuracy_score, balanced_accuracy_score, confusion_matrix, f1_score,
-                             precision_score, recall_score, roc_auc_score, roc_curve)
+from sklearn.metrics import (
+    accuracy_score,
+    balanced_accuracy_score,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+    roc_curve,
+)
 
 
 def choose_threshold(y_true: np.ndarray, scores: np.ndarray) -> float:

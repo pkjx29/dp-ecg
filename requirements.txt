@@ -1,9 +1,13 @@
+fastapi==0.158.0
+gradio==6.30.0
 matplotlib==3.11.2
 numpy==2.5.4
 opacus==1.6.0
 pandas==3.0.6
-pytest==9.1.1
+pydantic==2.14.1
+PyYAML==6.0.3
 scikit-learn==1.9.1
 scipy==1.18.1
 torch==2.14.1
+uvicorn==0.54.0
 wfdb==4.3.1

@@ -3,8 +3,8 @@
 import numpy as np
 import pytest
 
-from dp_ecg.data.metadata import FS, LEADS
 from dp_ecg.data.features import FEATURE_NAMES, clip_and_impute, extract
+from dp_ecg.data.metadata import FS, LEADS
 
 
 def synthetic_ecg(hr_bpm=75.0, r_mv=1.2, t_mv=0.3, seconds=10, seed=0):

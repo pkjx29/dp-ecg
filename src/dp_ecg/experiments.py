@@ -89,7 +89,7 @@ def run_training(synthetic: bool = False, only: str | None = None, epochs: int |
     torch.set_num_threads(max(1, torch.get_num_threads()))
     jobs = []
     if only in (None, "baseline"):
-        jobs.append(("baseline_seed%d" % base_cfg["train"]["seed"], dict(base_cfg["train"]),
+        jobs.append((f"baseline_seed{base_cfg['train']['seed']}", dict(base_cfg["train"]),
                      base_cfg["train"]["seed"], None))
     if only in (None, "dp"):
         for eps in dp_cfg["target_epsilons"]:

@@ -12,8 +12,13 @@ import pytest
 from scipy.stats import laplace, norm
 
 from dp_ecg.privacy.discrete import geometric_alpha, geometric_log_pmf, geometric_mechanism
-from dp_ecg.privacy.gaussian import (gaussian_exact_delta, gaussian_mechanism, gaussian_sigma,
-                                     gaussian_sigma_analytic, gaussian_sigma_classical)
+from dp_ecg.privacy.gaussian import (
+    gaussian_exact_delta,
+    gaussian_mechanism,
+    gaussian_sigma,
+    gaussian_sigma_analytic,
+    gaussian_sigma_classical,
+)
 from dp_ecg.privacy.laplace import laplace_mechanism, laplace_scale
 
 N = 200_000

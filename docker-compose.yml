@@ -1,0 +1,8 @@
+services:
+  dashboard:
+    build: .
+    ports: ["7860:7860"]
+    environment:
+      PORT: "7860"
+    # Optional: mount local checkpoints to enable POST /predict.
+    # volumes: ["./artifacts/checkpoints:/app/artifacts/checkpoints:ro"]
