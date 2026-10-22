@@ -145,7 +145,7 @@ skipped on re-runs; delete a run's JSON to redo it.
 make test
 ```
 
-`make test` runs 69 tests with pytest, all on synthetic data, so no download is needed. `make smoke` runs the whole
+`make test` runs 70 tests with pytest, all on synthetic data, so no download is needed. `make smoke` runs the whole
 pipeline on a tiny synthetic dataset; its numbers are never PTB-XL results.
 
 Settings live in [`configs/`](configs). The experiment protocol is in

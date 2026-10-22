@@ -49,7 +49,7 @@ def build_ui() -> gr.Blocks:
                               ("dp_mean_error.png", "DP mean: observed vs theoretical error")]:
             path = artifact_dir("figures") / name
             if path.exists():
-                gr.Image(str(path), label=caption, show_download_button=False)
+                gr.Image(str(path), label=caption)
             else:
                 gr.Markdown(f"*{caption}: pending.*")
     return demo

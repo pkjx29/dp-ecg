@@ -24,3 +24,11 @@ def test_predict_validates_input():
     unknown = {"run_id": "no_such_run", "waveform": [[0.0] * 1000] * 12}
     r = client.post("/predict", json=unknown)
     assert r.status_code == 404 and "/" not in r.json()["detail"]
+
+
+def test_dashboard_builds_and_mounts():
+    """Catches Gradio API changes: the full app (API + dashboard) must construct."""
+    app = create_app(with_ui=True)
+    with TestClient(app) as c:
+        assert c.get("/health").status_code == 200
+        assert c.get("/").status_code == 200
