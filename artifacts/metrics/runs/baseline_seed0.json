@@ -1,0 +1,144 @@
+{
+  "run_id": "baseline_seed0",
+  "status": "completed",
+  "synthetic_smoke_test": false,
+  "kind": "baseline",
+  "seed": 0,
+  "model_cfg": {
+    "channels": [
+      32,
+      64,
+      64,
+      128
+    ],
+    "kernel_sizes": [
+      7,
+      5,
+      5,
+      3
+    ],
+    "groupnorm_groups": 8,
+    "dropout": 0.1
+  },
+  "train_cfg": {
+    "optimizer": "adam",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0,
+    "batch_size": 128,
+    "epochs": 12,
+    "seed": 0,
+    "selection_metric": "auroc"
+  },
+  "privacy": null,
+  "best_epoch": 11,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.4055113432423041,
+      "val_auroc": 0.9000009391346813
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.2771364678192467,
+      "val_auroc": 0.9166987537682779
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.24838929152709513,
+      "val_auroc": 0.9218123421079818
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.2526904292983945,
+      "val_auroc": 0.9271419314243856
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.23256941486953175,
+      "val_auroc": 0.9285835031601881
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.22075956348500683,
+      "val_auroc": 0.9265127111879115
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.21206504151452957,
+      "val_auroc": 0.9260901005813242
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.212501497379593,
+      "val_auroc": 0.9359369277148036
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.19486726072522398,
+      "val_auroc": 0.9325278688216678
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.18831187773246383,
+      "val_auroc": 0.9374536302251106
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.18239016431674038,
+      "val_auroc": 0.9457086240737784
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.19058814710284933,
+      "val_auroc": 0.9418769545740554
+    }
+  ],
+  "train_seconds": 138.0,
+  "n_train": 9286,
+  "validation": {
+    "threshold": 0.19441761076450348,
+    "accuracy": 0.8727114210985178,
+    "balanced_accuracy": 0.876961617565575,
+    "precision": 0.6338461538461538,
+    "recall": 0.8841201716738197,
+    "f1": 0.7383512544802867,
+    "auroc": 0.9457086240737784,
+    "confusion_matrix": {
+      "tn": 795,
+      "fp": 119,
+      "fn": 27,
+      "tp": 206
+    },
+    "positive_prevalence": 0.2031386224934612,
+    "n": 1147
+  },
+  "test": {
+    "threshold": 0.19441761076450348,
+    "accuracy": 0.8638698630136986,
+    "balanced_accuracy": 0.8706825657894737,
+    "precision": 0.6366197183098592,
+    "recall": 0.8828125,
+    "f1": 0.7397708674304418,
+    "auroc": 0.9486876370614035,
+    "confusion_matrix": {
+      "tn": 783,
+      "fp": 129,
+      "fn": 30,
+      "tp": 226
+    },
+    "positive_prevalence": 0.2191780821917808,
+    "n": 1168
+  },
+  "checkpoint": "artifacts/checkpoints/baseline_seed0.pt",
+  "environment": {
+    "python": "3.13.9",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "torch": "2.14.1",
+    "opacus": "1.6.0",
+    "scikit_learn": "1.9.1",
+    "cuda_available": false,
+    "torch_threads": 4
+  }
+}

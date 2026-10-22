@@ -84,8 +84,7 @@ It is strictly decreasing in σ, so the **analytic calibration** (the default) f
 δ(ε) ≤ δ by bisection. It is valid for every ε > 0. The **classical calibration**
 σ = Δ·√(2 ln(1.25/δ))/ε comes from a looser tail bound and is proved only for ε < 1. The code refuses
 ε ≥ 1 for it. Tests confirm that classical σ ≥ analytic σ, that both satisfy the exact δ, and that the
-analytic σ is tight: 1% less noise breaks the guarantee. In the error diagnostic the analytic calibration
-gives about 12% lower error than the classical one at the same (ε, δ).
+analytic σ is tight: 1% less noise breaks the guarantee. At the same (ε, δ) the analytic σ is always smaller, so the released statistics are less noisy.
 
 **Why Gaussian at all?** It scales with Δ₂, not Δ₁. For d equal-range coordinates that is √d against d.
 It also composes cleanly in Rényi DP, which DP-SGD relies on.
@@ -183,7 +182,7 @@ PyTorch, so the runs use the standard PRNG. That is fine for research and not fo
 
 Four blocks of Conv1d (stride 2) → GroupNorm(8) → ReLU, with channels 32/64/64/128 and kernels 7/5/5/3.
 Each block halves the time axis (1000 → 63), followed by global average pooling, dropout and a linear
-head, about 64k parameters. Small models suffer less from DP noise, because the noise is added to every
+head, 59k parameters. Small models suffer less from DP noise, because the noise is added to every
 parameter's gradient.
 
 ---

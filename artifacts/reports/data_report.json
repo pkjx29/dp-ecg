@@ -1,0 +1,44 @@
+{
+  "dataset": "PTB-XL v1.0.3, 100 Hz",
+  "task": "NORM (0) vs MI (1)",
+  "selection": {
+    "total_records": 21799,
+    "selected_NORM": 9069,
+    "selected_MI": 2532,
+    "excluded_no_diagnostic_superclass": 411,
+    "excluded_both_NORM_and_MI": 1,
+    "excluded_other_superclasses": 9786
+  },
+  "splits": {
+    "train": {
+      "records": 9286,
+      "patients": 8522,
+      "positive_share": 0.22
+    },
+    "val": {
+      "records": 1147,
+      "patients": 1073,
+      "positive_share": 0.2031
+    },
+    "test": {
+      "records": 1168,
+      "patients": 1057,
+      "positive_share": 0.2192
+    }
+  },
+  "patient_disjoint_across_splits": true,
+  "records_with_nonfinite_values": 0,
+  "waveform_shape": [
+    12,
+    1000
+  ],
+  "preprocessing": {
+    "bandpass_hz": [
+      0.5,
+      40.0
+    ],
+    "filter_order": 4,
+    "amplitude_scale_mv": 1.0,
+    "clip_mv": 5.0
+  }
+}

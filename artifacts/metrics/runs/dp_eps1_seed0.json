@@ -1,0 +1,172 @@
+{
+  "run_id": "dp_eps1_seed0",
+  "status": "completed",
+  "synthetic_smoke_test": false,
+  "kind": "dp_sgd",
+  "seed": 0,
+  "model_cfg": {
+    "channels": [
+      32,
+      64,
+      64,
+      128
+    ],
+    "kernel_sizes": [
+      7,
+      5,
+      5,
+      3
+    ],
+    "groupnorm_groups": 8,
+    "dropout": 0.1
+  },
+  "train_cfg": {
+    "optimizer": "adam",
+    "learning_rate": 0.002,
+    "weight_decay": 0.0,
+    "batch_size": 256,
+    "epochs": 12,
+    "seeds": [
+      0
+    ],
+    "selection_metric": "auroc"
+  },
+  "privacy": {
+    "requested_epsilon": 1.0,
+    "achieved_epsilon": 0.9984882245526905,
+    "delta": 1e-05,
+    "noise_multiplier": 2.5,
+    "max_grad_norm": 1.0,
+    "sample_rate": 0.02702702702702703,
+    "expected_batch_size": 256,
+    "poisson_sampling": true,
+    "steps": 444,
+    "epochs": 12,
+    "accountant": "rdp",
+    "secure_mode": false,
+    "within_target": true
+  },
+  "best_epoch": 12,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.810592903385932,
+      "val_auroc": 0.6731905222527963,
+      "epsilon_so_far": 0.29016507645547746
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.7845120520294852,
+      "val_auroc": 0.7222462223307445,
+      "epsilon_so_far": 0.4030403482522966
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.7985930028113368,
+      "val_auroc": 0.743799363266686,
+      "epsilon_so_far": 0.4920415199713186
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.7688388599488968,
+      "val_auroc": 0.7733398446671238,
+      "epsilon_so_far": 0.5682446831078923
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.7644606950269612,
+      "val_auroc": 0.793669762680666,
+      "epsilon_so_far": 0.6361724720399407
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.7435730905535386,
+      "val_auroc": 0.8121777594124773,
+      "epsilon_so_far": 0.6979889542893396
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.7625149445820854,
+      "val_auroc": 0.8253350362975554,
+      "epsilon_so_far": 0.7554007472749409
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.7564033940714824,
+      "val_auroc": 0.8401874512823884,
+      "epsilon_so_far": 0.8090562579854357
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.7739297536582975,
+      "val_auroc": 0.8506541073055287,
+      "epsilon_so_far": 0.8598769258309937
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.7518466004590129,
+      "val_auroc": 0.8610691109211972,
+      "epsilon_so_far": 0.908438104158613
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.7359256160889984,
+      "val_auroc": 0.8714700275166462,
+      "epsilon_so_far": 0.9542768517992101
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.6861398301760614,
+      "val_auroc": 0.8742123007860558,
+      "epsilon_so_far": 0.9984882245526905
+    }
+  ],
+  "train_seconds": 244.3,
+  "n_train": 9286,
+  "validation": {
+    "threshold": 0.008099861443042755,
+    "accuracy": 0.7829119442022667,
+    "balanced_accuracy": 0.7966327326001822,
+    "precision": 0.4798994974874372,
+    "recall": 0.8197424892703863,
+    "f1": 0.6053882725832013,
+    "auroc": 0.8742123007860558,
+    "confusion_matrix": {
+      "tn": 707,
+      "fp": 207,
+      "fn": 42,
+      "tp": 191
+    },
+    "positive_prevalence": 0.2031386224934612,
+    "n": 1147
+  },
+  "test": {
+    "threshold": 0.008099861443042755,
+    "accuracy": 0.7688356164383562,
+    "balanced_accuracy": 0.7803248355263157,
+    "precision": 0.4834905660377358,
+    "recall": 0.80078125,
+    "f1": 0.6029411764705882,
+    "auroc": 0.866724917763158,
+    "confusion_matrix": {
+      "tn": 693,
+      "fp": 219,
+      "fn": 51,
+      "tp": 205
+    },
+    "positive_prevalence": 0.2191780821917808,
+    "n": 1168
+  },
+  "checkpoint": "artifacts/checkpoints/dp_eps1_seed0.pt",
+  "environment": {
+    "python": "3.13.9",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "torch": "2.14.1",
+    "opacus": "1.6.0",
+    "scikit_learn": "1.9.1",
+    "cuda_available": false,
+    "torch_threads": 4
+  }
+}

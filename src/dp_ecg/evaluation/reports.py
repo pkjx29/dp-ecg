@@ -13,6 +13,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
+from matplotlib.ticker import NullFormatter, NullLocator
 
 from ..config import artifact_dir, load_config
 from ..privacy.verification import verify_all
@@ -30,6 +31,13 @@ def _md_table(df: pd.DataFrame) -> str:
     sep = "|" + "---|" * len(df.columns)
     body = ["| " + " | ".join(fmt(v) for v in row) + " |" for row in df.itertuples(index=False)]
     return "\n".join([head, sep, *body])
+
+
+def _eps_ticks(ax, eps) -> None:
+    """Label exactly the achieved ε values on a log axis, no minor-tick clutter."""
+    ax.xaxis.set_minor_locator(NullLocator())
+    ax.xaxis.set_minor_formatter(NullFormatter())
+    ax.set_xticks(list(eps), [f"{v:.2f}" for v in eps])
 
 
 def load_runs() -> pd.DataFrame:
@@ -61,7 +69,7 @@ def privacy_utility_plot(runs: pd.DataFrame) -> None:
         ax.plot(dp.achieved_epsilon, dp[m], "o-", color=BLUE, label="DP-SGD CNN")
         ax.axhline(base[m].mean(), color=GREY, ls="--", label="same CNN, non-private (no ε)")
         ax.set(xscale="log", xlabel=f"achieved ε (δ = {dp.delta.iloc[0]:g})", ylabel=f"test {label}")
-        ax.set_xticks(dp.achieved_epsilon.round(2), [f"{v:.2f}" for v in dp.achieved_epsilon])
+        _eps_ticks(ax, dp.achieved_epsilon)
         ax.grid(True, alpha=0.3)
     axes[0].legend(fontsize=8)
     fig.suptitle("Privacy–utility trade-off: PTB-XL NORM vs MI, test fold 10 (one seed per ε)")
@@ -107,8 +115,10 @@ def membership_plots() -> pd.DataFrame | None:
         ax.axhspan(b.loss_auroc_ci_low, b.loss_auroc_ci_high, color=GREY, alpha=0.15)
         ax.axhline(b.loss_auroc, color=GREY, ls="--", label="non-private CNN (no ε)")
         ax.axhline(0.5, color=RED, ls=":", label="chance")
-        ax.set(xscale="log", xlabel="achieved ε", ylabel="attack AUROC (loss score)",
+        delta = load_config("dp_sgd")["delta"]
+        ax.set(xscale="log", xlabel=f"achieved ε (δ = {delta:g})", ylabel="attack AUROC (loss score)",
                title="Membership inference vs privacy budget")
+        _eps_ticks(ax, dp.achieved_epsilon)
         ax.legend(fontsize=8)
         ax.grid(True, alpha=0.3)
         fig.tight_layout()

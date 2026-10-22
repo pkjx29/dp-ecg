@@ -1,0 +1,160 @@
+{
+  "population": "all_records",
+  "adjacency": "add/remove one ECG record",
+  "budget": {
+    "composition": "basic sequential",
+    "total_epsilon": 1.0,
+    "total_delta": 1e-06,
+    "spent_epsilon": 1.0,
+    "spent_delta": 1e-06,
+    "entries": [
+      {
+        "name": "record_count",
+        "epsilon": 0.1,
+        "delta": 0.0
+      },
+      {
+        "name": "mean_heart_rate_bpm [count part]",
+        "epsilon": 0.1,
+        "delta": 0.0
+      },
+      {
+        "name": "mean_heart_rate_bpm [sum part]",
+        "epsilon": 0.1,
+        "delta": 0.0
+      },
+      {
+        "name": "mean_qrs_width_s [count part]",
+        "epsilon": 0.075,
+        "delta": 0.0
+      },
+      {
+        "name": "mean_qrs_width_s [sum part]",
+        "epsilon": 0.075,
+        "delta": 0.0
+      },
+      {
+        "name": "mean_sokolow_lyon_mv [count part]",
+        "epsilon": 0.075,
+        "delta": 2.5e-07
+      },
+      {
+        "name": "mean_sokolow_lyon_mv [sum part]",
+        "epsilon": 0.075,
+        "delta": 2.5e-07
+      },
+      {
+        "name": "mean_age_years [count part]",
+        "epsilon": 0.075,
+        "delta": 2.5e-07
+      },
+      {
+        "name": "mean_age_years [sum part]",
+        "epsilon": 0.075,
+        "delta": 2.5e-07
+      },
+      {
+        "name": "heart_rate_histogram",
+        "epsilon": 0.25,
+        "delta": 0.0
+      }
+    ]
+  },
+  "releases": [
+    {
+      "name": "record_count",
+      "query": "count",
+      "mechanism": "laplace",
+      "epsilon": 0.1,
+      "delta": 0.0,
+      "sensitivity": 1.0,
+      "sensitivity_norm": "L1",
+      "noise_scale": 10.0,
+      "lower": null,
+      "upper": null,
+      "value": 21788.724134716816
+    },
+    {
+      "name": "mean_heart_rate_bpm",
+      "query": "mean (NoisySum/NoisyCount, count share 0.5)",
+      "mechanism": "laplace",
+      "epsilon": 0.2,
+      "delta": 0.0,
+      "sensitivity": 115.0,
+      "sensitivity_norm": "L1",
+      "noise_scale": 1150.0,
+      "lower": 20.0,
+      "upper": 250.0,
+      "value": 74.22880214805652
+    },
+    {
+      "name": "mean_qrs_width_s",
+      "query": "mean (NoisySum/NoisyCount, count share 0.5)",
+      "mechanism": "laplace",
+      "epsilon": 0.15,
+      "delta": 0.0,
+      "sensitivity": 0.11,
+      "sensitivity_norm": "L1",
+      "noise_scale": 1.4666666666666668,
+      "lower": 0.02,
+      "upper": 0.24,
+      "value": 0.06956075520448127
+    },
+    {
+      "name": "mean_sokolow_lyon_mv",
+      "query": "mean (NoisySum/NoisyCount, count share 0.5)",
+      "mechanism": "gaussian",
+      "epsilon": 0.15,
+      "delta": 5e-07,
+      "sensitivity": 4.0,
+      "sensitivity_norm": "L2",
+      "noise_scale": 206.57684327662065,
+      "lower": 0.0,
+      "upper": 8.0,
+      "value": 2.1250123705521924
+    },
+    {
+      "name": "mean_age_years",
+      "query": "mean (NoisySum/NoisyCount, count share 0.5)",
+      "mechanism": "gaussian",
+      "epsilon": 0.15,
+      "delta": 5e-07,
+      "sensitivity": 50.0,
+      "sensitivity_norm": "L2",
+      "noise_scale": 2582.210540957759,
+      "lower": 0.0,
+      "upper": 100.0,
+      "value": 59.90785711333238
+    },
+    {
+      "name": "heart_rate_histogram",
+      "query": "histogram, 15 public bins",
+      "mechanism": "laplace",
+      "epsilon": 0.25,
+      "delta": 0.0,
+      "sensitivity": 1.0,
+      "sensitivity_norm": "L1",
+      "noise_scale": 4.0,
+      "lower": 30.0,
+      "upper": 180.0,
+      "value": [
+        32.93400348057685,
+        557.8678229714322,
+        3338.3228408893165,
+        6159.2683974403635,
+        5335.816542889469,
+        3155.123104629367,
+        1654.2198040678245,
+        778.5641368205061,
+        383.4433544832185,
+        155.65060166145983,
+        93.82959807545062,
+        66.21205777967295,
+        45.40518374131405,
+        16.580245110179554,
+        6.351979066569129
+      ]
+    }
+  ],
+  "note": "noisy values only; clipping bounds are fixed physiological ranges chosen without the data"
+}

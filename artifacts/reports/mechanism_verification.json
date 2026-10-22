@@ -1,0 +1,117 @@
+{
+  "adjacency": "add/remove one record",
+  "domain": [
+    -2,
+    0,
+    1,
+    3
+  ],
+  "max_size": 4,
+  "n_pairs": 140,
+  "epsilon": 1.0,
+  "delta": 1e-05,
+  "checks": [
+    {
+      "check": "neighbour generation",
+      "passed": true,
+      "what": "every generated pair differs by exactly one added record"
+    },
+    {
+      "check": "sensitivity: count",
+      "passed": true,
+      "claimed_l1": 1.0,
+      "observed_max_l1": 1.0,
+      "claimed_l2": 1.0,
+      "observed_max_l2": 1.0,
+      "bound_attained": true
+    },
+    {
+      "check": "laplace \u03b5-DP (closed form): count",
+      "passed": true,
+      "max_log_ratio": 1.0,
+      "what": "sup_y log p_D(y)/p_D'(y) = ||\u0394f||_1 / b"
+    },
+    {
+      "check": "gaussian (\u03b5,\u03b4)-DP (exact \u03b4): count",
+      "passed": true,
+      "sigma": 3.730631634825908,
+      "max_exact_delta": 9.99999999955675e-06
+    },
+    {
+      "check": "sensitivity: clipped sum",
+      "passed": true,
+      "claimed_l1": 3.0,
+      "observed_max_l1": 3.0,
+      "claimed_l2": 3.0,
+      "observed_max_l2": 3.0,
+      "bound_attained": true
+    },
+    {
+      "check": "laplace \u03b5-DP (closed form): clipped sum",
+      "passed": true,
+      "max_log_ratio": 1.0,
+      "what": "sup_y log p_D(y)/p_D'(y) = ||\u0394f||_1 / b"
+    },
+    {
+      "check": "gaussian (\u03b5,\u03b4)-DP (exact \u03b4): clipped sum",
+      "passed": true,
+      "sigma": 11.191894904477724,
+      "max_exact_delta": 9.99999999955675e-06
+    },
+    {
+      "check": "sensitivity: centered clipped sum",
+      "passed": true,
+      "claimed_l1": 2.5,
+      "observed_max_l1": 2.5,
+      "claimed_l2": 2.5,
+      "observed_max_l2": 2.5,
+      "bound_attained": true
+    },
+    {
+      "check": "laplace \u03b5-DP (closed form): centered clipped sum",
+      "passed": true,
+      "max_log_ratio": 1.0,
+      "what": "sup_y log p_D(y)/p_D'(y) = ||\u0394f||_1 / b"
+    },
+    {
+      "check": "gaussian (\u03b5,\u03b4)-DP (exact \u03b4): centered clipped sum",
+      "passed": true,
+      "sigma": 9.326579087064768,
+      "max_exact_delta": 9.999999999556696e-06
+    },
+    {
+      "check": "sensitivity: histogram",
+      "passed": true,
+      "claimed_l1": 1.0,
+      "observed_max_l1": 1.0,
+      "claimed_l2": 1.0,
+      "observed_max_l2": 1.0,
+      "bound_attained": true
+    },
+    {
+      "check": "laplace \u03b5-DP (closed form): histogram",
+      "passed": true,
+      "max_log_ratio": 1.0,
+      "what": "sup_y log p_D(y)/p_D'(y) = ||\u0394f||_1 / b"
+    },
+    {
+      "check": "gaussian (\u03b5,\u03b4)-DP (exact \u03b4): histogram",
+      "passed": true,
+      "sigma": 3.730631634825908,
+      "max_exact_delta": 9.99999999955675e-06
+    },
+    {
+      "check": "laplace \u03b5-DP (numerical grid, supplementary): clipped sum",
+      "passed": true,
+      "max_log_ratio_on_grid": 1.0000000000000036,
+      "grid": "[-40, 40], step 0.001",
+      "limitation": "finite grid; tails covered by the closed-form check, not this one"
+    },
+    {
+      "check": "geometric \u03b5-DP (exact, all integer outputs): count",
+      "passed": true,
+      "max_log_ratio": 1.0
+    }
+  ],
+  "all_passed": true
+}
