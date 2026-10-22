@@ -9,7 +9,7 @@ train:
   weight_decay: 0.0
   batch_size: 128
   epochs: 12
-  seed: 0
+  seeds: [0, 1, 2]       # each seed = one full training run; results reported as mean ± sd
   # Select the epoch with the best validation AUROC; choose the decision
   # threshold on validation to maximise balanced accuracy (class imbalance:
   # about 22% MI).

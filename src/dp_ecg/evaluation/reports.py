@@ -58,68 +58,98 @@ def load_runs() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+METRICS = ["test_accuracy", "test_balanced_accuracy", "test_precision", "test_recall", "test_f1", "test_auroc"]
+
+
+def _config_label(kind: str, requested_epsilon) -> str:
+    return "non-private" if kind == "baseline" else f"DP-SGD, target ε={requested_epsilon:g}"
+
+
+def aggregate(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    """Mean and sample sd (ddof=1) over seeds for each configuration."""
+    df = df.assign(config=[_config_label(k, e) for k, e in zip(df.kind, df.requested_epsilon)])
+    g = df.groupby(["config", "kind"], sort=False, dropna=False)
+    out = g[cols].agg(["mean", "std"])
+    out.columns = [f"{c}_{stat}" for c, stat in out.columns]
+    out["n_seeds"] = g.size()
+    out = out.reset_index()
+    order = out.kind.eq("dp_sgd").astype(int)  # baseline first, then by ε descending
+    eps = out.config.str.extract(r"ε=([0-9.]+)")[0].astype(float).fillna(1e9)
+    return out.assign(_o=order, _e=-eps).sort_values(["_o", "_e"]).drop(columns=["_o", "_e"])
+
+
 def privacy_utility_plot(runs: pd.DataFrame) -> None:
-    dp = runs[runs.kind == "dp_sgd"].sort_values("achieved_epsilon")
+    dp_runs = runs[runs.kind == "dp_sgd"]
     base = runs[runs.kind == "baseline"]
-    if dp.empty or base.empty:
+    if dp_runs.empty or base.empty:
         return
+    agg = aggregate(dp_runs, ["achieved_epsilon", *METRICS]).sort_values("achieved_epsilon_mean")
+    n = int(agg.n_seeds.min())
     fig, axes = plt.subplots(1, 3, figsize=(13, 3.8))
     for ax, m, label in zip(axes, ["test_auroc", "test_balanced_accuracy", "test_f1"],
                             ["AUROC", "balanced accuracy", "F1 (MI = positive)"]):
-        ax.plot(dp.achieved_epsilon, dp[m], "o-", color=BLUE, label="DP-SGD CNN")
-        ax.axhline(base[m].mean(), color=GREY, ls="--", label="same CNN, non-private (no ε)")
-        ax.set(xscale="log", xlabel=f"achieved ε (δ = {dp.delta.iloc[0]:g})", ylabel=f"test {label}")
-        _eps_ticks(ax, dp.achieved_epsilon)
+        ax.scatter(dp_runs.achieved_epsilon, dp_runs[m], s=12, color=BLUE, alpha=0.35, label="single seed")
+        ax.errorbar(agg.achieved_epsilon_mean, agg[f"{m}_mean"], yerr=agg[f"{m}_std"], fmt="o-", color=BLUE,
+                    capsize=3, label=f"DP-SGD CNN, mean ± sd ({n} seeds)")
+        mu, sd = base[m].mean(), base[m].std()
+        ax.axhspan(mu - sd, mu + sd, color=GREY, alpha=0.15)
+        ax.axhline(mu, color=GREY, ls="--", label=f"same CNN, non-private, mean ± sd ({len(base)} seeds)")
+        ax.set(xscale="log", xlabel=f"achieved ε (δ = {dp_runs.delta.iloc[0]:g})", ylabel=f"test {label}")
+        _eps_ticks(ax, agg.achieved_epsilon_mean)
         ax.grid(True, alpha=0.3)
-    axes[0].legend(fontsize=8)
-    fig.suptitle("Privacy–utility trade-off: PTB-XL NORM vs MI, test fold 10 (one seed per ε)")
+    axes[0].legend(fontsize=7)
+    fig.suptitle("Privacy–utility trade-off: PTB-XL NORM vs MI, test fold 10")
     fig.tight_layout()
     fig.savefig(artifact_dir("figures") / "privacy_utility.png", dpi=150)
     plt.close(fig)
 
 
-def membership_plots() -> pd.DataFrame | None:
+def membership_plots(runs: pd.DataFrame) -> pd.DataFrame | None:
     path = artifact_dir("metrics") / "membership_inference.json"
     if not path.exists():
         return None
     mia = json.loads(path.read_text())
-    rows = [{"run_id": rid, "kind": r["kind"], "achieved_epsilon": r["achieved_epsilon"],
+    meta = runs.set_index("run_id")
+    rows = [{"run_id": rid, "kind": r["kind"], "seed": int(meta.loc[rid, "seed"]),
+             "requested_epsilon": meta.loc[rid, "requested_epsilon"], "achieved_epsilon": r["achieved_epsilon"],
              **{f"{a}_auroc": v["auroc"] for a, v in r["attacks"].items()},
              "loss_auroc_ci_low": r["attacks"]["loss"]["auroc_ci95"][0],
              "loss_auroc_ci_high": r["attacks"]["loss"]["auroc_ci95"][1],
              "loss_tpr_at_fpr_0.01": r["attacks"]["loss"]["tpr_at_fpr_0.01"],
              "loss_balanced_accuracy": r["attacks"]["loss"]["balanced_accuracy"]}
-            for rid, r in mia["results"].items()]
+            for rid, r in mia["results"].items() if rid in meta.index]
     df = pd.DataFrame(rows)
 
+    # ROC curves: seed 0 of each configuration, to keep the figure readable.
     fig, ax = plt.subplots(figsize=(5.5, 4))
     for rid, roc in mia["roc_loss_attack"].items():
-        ax.plot(roc["fpr"], roc["tpr"], color=GREY if rid.startswith("baseline") else None, lw=1.5,
-                label=rid)
+        if not rid.endswith("_seed0"):
+            continue
+        ax.plot(roc["fpr"], roc["tpr"], color=GREY if rid.startswith("baseline") else None, lw=1.5, label=rid)
     ax.plot([0, 1], [0, 1], ":", color="#999999")
     ax.set(xlabel="false positive rate", ylabel="true positive rate",
-           title="Loss-threshold membership attack (evaluation set)")
+           title="Loss-threshold membership attack (seed 0 models)")
     ax.legend(fontsize=7)
     fig.tight_layout()
     fig.savefig(artifact_dir("figures") / "mia_roc.png", dpi=150)
     plt.close(fig)
 
-    dp = df[df.kind == "dp_sgd"].sort_values("achieved_epsilon")
-    base = df[df.kind == "baseline"]
+    dp, base = df[df.kind == "dp_sgd"], df[df.kind == "baseline"]
     if not dp.empty and not base.empty:
+        agg = aggregate(dp, ["achieved_epsilon", "loss_auroc"]).sort_values("achieved_epsilon_mean")
         fig, ax = plt.subplots(figsize=(5.5, 4))
-        ax.errorbar(dp.achieved_epsilon, dp.loss_auroc,
-                    yerr=[dp.loss_auroc - dp.loss_auroc_ci_low, dp.loss_auroc_ci_high - dp.loss_auroc],
-                    fmt="o-", color=BLUE, capsize=3, label="DP-SGD CNN (95% bootstrap CI)")
-        b = base.iloc[0]
-        ax.axhspan(b.loss_auroc_ci_low, b.loss_auroc_ci_high, color=GREY, alpha=0.15)
-        ax.axhline(b.loss_auroc, color=GREY, ls="--", label="non-private CNN (no ε)")
+        ax.scatter(dp.achieved_epsilon, dp.loss_auroc, s=12, color=BLUE, alpha=0.35, label="single seed")
+        ax.errorbar(agg.achieved_epsilon_mean, agg.loss_auroc_mean, yerr=agg.loss_auroc_std, fmt="o-",
+                    color=BLUE, capsize=3, label=f"DP-SGD CNN, mean ± sd ({int(agg.n_seeds.min())} seeds)")
+        mu, sd = base.loss_auroc.mean(), base.loss_auroc.std()
+        ax.axhspan(mu - sd, mu + sd, color=GREY, alpha=0.15)
+        ax.axhline(mu, color=GREY, ls="--", label=f"non-private CNN, mean ± sd ({len(base)} seeds)")
         ax.axhline(0.5, color=RED, ls=":", label="chance")
         delta = load_config("dp_sgd")["delta"]
         ax.set(xscale="log", xlabel=f"achieved ε (δ = {delta:g})", ylabel="attack AUROC (loss score)",
                title="Membership inference vs privacy budget")
-        _eps_ticks(ax, dp.achieved_epsilon)
-        ax.legend(fontsize=8)
+        _eps_ticks(ax, agg.achieved_epsilon_mean)
+        ax.legend(fontsize=7)
         ax.grid(True, alpha=0.3)
         fig.tight_layout()
         fig.savefig(artifact_dir("figures") / "mia_vs_epsilon.png", dpi=150)
@@ -142,16 +172,33 @@ def mechanism_verification_report() -> dict:
     return report
 
 
+def _mean_sd(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    """'mean ± sd' strings per configuration for the Markdown summary."""
+    agg = aggregate(df, cols)
+    out = agg[["config", "n_seeds"]].copy()
+    for c in cols:
+        out[c] = ["–" if pd.isna(m) else f"{m:.4f} ± {s:.4f}" if pd.notna(s) else f"{m:.4f}"
+                  for m, s in zip(agg[f"{c}_mean"], agg[f"{c}_std"])]
+    return out
+
+
 def write_summary(runs: pd.DataFrame, mia: pd.DataFrame | None) -> str:
-    cols = ["run_id", "requested_epsilon", "achieved_epsilon", "noise_multiplier", "steps", "best_epoch",
-            "test_accuracy", "test_balanced_accuracy", "test_precision", "test_recall", "test_f1",
-            "test_auroc", "threshold"]
+    per_run = ["run_id", "seed", "requested_epsilon", "achieved_epsilon", "noise_multiplier", "steps", "best_epoch",
+               *METRICS, "threshold"]
     md = ["# Experiment summary (generated from artifacts/metrics)", "",
-          "Task: PTB-XL NORM vs MI, record-level DP, test fold 10. One seed per configuration.", "",
-          _md_table(runs[cols]), ""]
+          "Task: PTB-XL NORM vs MI, record-level DP, test fold 10 (n = 1,168). "
+          "Each seed is a full training run; sd is the sample standard deviation across seeds.", "",
+          "## Classification, mean ± sd over seeds", "",
+          _md_table(_mean_sd(runs, ["achieved_epsilon", "test_auroc", "test_balanced_accuracy", "test_f1",
+                                    "test_precision", "test_recall"])), "",
+          "## Classification, every run", "",
+          _md_table(runs.sort_values(["kind", "requested_epsilon", "seed"])[per_run]), ""]
     if mia is not None:
-        md += ["## Membership inference (evaluation set: training members vs test-fold non-members)", "",
-               _md_table(mia.drop(columns=["kind"])), ""]
+        md += ["## Membership inference, mean ± sd over seeds (loss attack unless stated)", "",
+               _md_table(_mean_sd(mia, ["loss_auroc", "max_probability_auroc", "loss_tpr_at_fpr_0.01",
+                                        "loss_balanced_accuracy"])), "",
+               "## Membership inference, every run (95% bootstrap CI of the loss-attack AUROC)", "",
+               _md_table(mia.sort_values(["kind", "requested_epsilon", "seed"]).drop(columns=["kind"])), ""]
     text = "\n".join(md)
     (artifact_dir("reports") / "results_summary.md").write_text(text)
     return text
@@ -164,4 +211,4 @@ def generate_all() -> str:
         return "no completed runs yet"
     runs.to_csv(artifact_dir("metrics") / "runs_table.csv", index=False)
     privacy_utility_plot(runs)
-    return write_summary(runs, membership_plots())
+    return write_summary(runs, membership_plots(runs))

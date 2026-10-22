@@ -89,11 +89,12 @@ def run_training(synthetic: bool = False, only: str | None = None, epochs: int |
     torch.set_num_threads(max(1, torch.get_num_threads()))
     jobs = []
     if only in (None, "baseline"):
-        jobs.append((f"baseline_seed{base_cfg['train']['seed']}", dict(base_cfg["train"]),
-                     base_cfg["train"]["seed"], None))
+        # Smoke tests use the first seed only, to stay fast in CI.
+        for seed in base_cfg["train"]["seeds"][: 1 if synthetic else None]:
+            jobs.append((f"baseline_seed{seed}", dict(base_cfg["train"]), seed, None))
     if only in (None, "dp"):
         for eps in dp_cfg["target_epsilons"]:
-            for seed in dp_cfg["train"]["seeds"]:
+            for seed in dp_cfg["train"]["seeds"][: 1 if synthetic else None]:
                 jobs.append((f"dp_eps{eps:g}_seed{seed}", dict(dp_cfg["train"]), seed,
                              PrivacySettings(eps, dp_cfg["delta"], dp_cfg["max_grad_norm"], dp_cfg["accountant"],
                                              dp_cfg["poisson_sampling"], dp_cfg["secure_mode"])))

@@ -12,5 +12,5 @@ train:
   weight_decay: 0.0
   batch_size: 256          # expected batch size under Poisson sampling
   epochs: 12
-  seeds: [0]
+  seeds: [0, 1, 2]
   selection_metric: auroc
