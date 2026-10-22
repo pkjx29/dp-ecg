@@ -1,8 +1,8 @@
 # Limitations
 
 **Scientific**
-* One seed per configuration, so variance is not measured. The differences between ε = 2 and ε = 4 are within
-  noise.
+* Three seeds per configuration measure training randomness, but there is only one train/test split, so test-set
+  sampling uncertainty is not included in the sd.
 * The membership attack is a simple threshold attack. Near-chance AUROC is weak evidence, and stronger attacks
   (LiRA, shadow models) may find more.
 * DP models are poorly calibrated (validation thresholds below 0.01), so probabilities should not be read as risks.

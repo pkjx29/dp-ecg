@@ -1,0 +1,174 @@
+{
+  "run_id": "dp_eps2_seed1",
+  "status": "completed",
+  "synthetic_smoke_test": false,
+  "kind": "dp_sgd",
+  "seed": 1,
+  "model_cfg": {
+    "channels": [
+      32,
+      64,
+      64,
+      128
+    ],
+    "kernel_sizes": [
+      7,
+      5,
+      5,
+      3
+    ],
+    "groupnorm_groups": 8,
+    "dropout": 0.1
+  },
+  "train_cfg": {
+    "optimizer": "adam",
+    "learning_rate": 0.002,
+    "weight_decay": 0.0,
+    "batch_size": 256,
+    "epochs": 12,
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "selection_metric": "auroc"
+  },
+  "privacy": {
+    "requested_epsilon": 2.0,
+    "achieved_epsilon": 1.990980657311613,
+    "delta": 1e-05,
+    "noise_multiplier": 1.494140625,
+    "max_grad_norm": 1.0,
+    "sample_rate": 0.02702702702702703,
+    "expected_batch_size": 256,
+    "poisson_sampling": true,
+    "steps": 444,
+    "epochs": 12,
+    "accountant": "rdp",
+    "secure_mode": false,
+    "within_target": true
+  },
+  "best_epoch": 12,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.8366538212743521,
+      "val_auroc": 0.6085076210779388,
+      "epsilon_so_far": 0.7261630440673187
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.7955602580103819,
+      "val_auroc": 0.6714437317455697,
+      "epsilon_so_far": 0.8923992979167303
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.8087704258139947,
+      "val_auroc": 0.7261154572177196,
+      "epsilon_so_far": 1.0375991778551277
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.7647962824380954,
+      "val_auroc": 0.7770541223316835,
+      "epsilon_so_far": 1.1756403335905516
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.7290983615643988,
+      "val_auroc": 0.8121542810454447,
+      "epsilon_so_far": 1.3031449250001426
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.7254988194477855,
+      "val_auroc": 0.8335618561057841,
+      "epsilon_so_far": 1.4175224146041976
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.7238178619838901,
+      "val_auroc": 0.848620880720504,
+      "epsilon_so_far": 1.527830838015372
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.7094452123728413,
+      "val_auroc": 0.8601816286473642,
+      "epsilon_so_far": 1.6280954196145683
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.6820056449059091,
+      "val_auroc": 0.8692677566889868,
+      "epsilon_so_far": 1.7249716584641392
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.6119868844810684,
+      "val_auroc": 0.873038382434425,
+      "epsilon_so_far": 1.8173715737812168
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.560437422096601,
+      "val_auroc": 0.8763535278594303,
+      "epsilon_so_far": 1.9058536558433339
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.5275831502678568,
+      "val_auroc": 0.8787952780308225,
+      "epsilon_so_far": 1.990980657311613
+    }
+  ],
+  "train_seconds": 147.4,
+  "n_train": 9286,
+  "validation": {
+    "threshold": 0.0026839193888008595,
+    "accuracy": 0.7855274629468177,
+    "balanced_accuracy": 0.7966749936608409,
+    "precision": 0.48346055979643765,
+    "recall": 0.8154506437768241,
+    "f1": 0.6070287539936102,
+    "auroc": 0.8787952780308225,
+    "confusion_matrix": {
+      "tn": 711,
+      "fp": 203,
+      "fn": 43,
+      "tp": 190
+    },
+    "positive_prevalence": 0.2031386224934612,
+    "n": 1147
+  },
+  "test": {
+    "threshold": 0.0026839193888008595,
+    "accuracy": 0.7808219178082192,
+    "balanced_accuracy": 0.7823807565789473,
+    "precision": 0.5,
+    "recall": 0.78515625,
+    "f1": 0.6109422492401215,
+    "auroc": 0.8691106428179823,
+    "confusion_matrix": {
+      "tn": 711,
+      "fp": 201,
+      "fn": 55,
+      "tp": 201
+    },
+    "positive_prevalence": 0.2191780821917808,
+    "n": 1168
+  },
+  "checkpoint": "artifacts/checkpoints/dp_eps2_seed1.pt",
+  "environment": {
+    "python": "3.13.9",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "torch": "2.14.1",
+    "opacus": "1.6.0",
+    "scikit_learn": "1.9.1",
+    "cuda_available": false,
+    "torch_threads": 4
+  }
+}

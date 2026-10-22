@@ -8,9 +8,9 @@ measured at ε = 1, 2, 4 and 8, and a membership-inference attack tests what the
 > Research code, not a medical device. Model scores are experimental outputs, not diagnoses.
 
 **Status (22 Oct 2026).**
-- Done: everything below has been run on this machine on the full PTB-XL data.
+- Done: everything below has been run on this machine on the full PTB-XL data, with three seeds per configuration
+  (15 training runs).
 - Not done: the Docker image has not been built (Docker daemon unavailable here) and the dashboard is not deployed.
-  There is one seed per ε, so run-to-run variance is not yet measured.
 - Planned: a stronger membership attack (LiRA with shadow models) and Fourier-domain perturbation of ECG time
   series (Rastogi & Nath 2010).
 
@@ -18,33 +18,37 @@ measured at ε = 1, 2, 4 and 8, and a membership-inference attack tests what the
 
 ## Results (PTB-XL NORM vs MI, test fold 10, n = 1,168, 21.9% MI)
 
-| model | requested ε | achieved ε (δ = 10⁻⁵) | noise multiplier | test AUROC | balanced acc. | F1 (MI) | membership-attack AUROC [95% CI] |
-|---|---|---|---|---|---|---|---|
-| CNN, non-private | – | – (no guarantee) | – | **0.949** | 0.871 | 0.740 | 0.533 [0.510, 0.555] |
-| CNN, DP-SGD | 8 | 7.99 | 0.75 | 0.887 | 0.803 | 0.640 | 0.521 [0.498, 0.544] |
-| CNN, DP-SGD | 4 | 4.00 | 1.01 | 0.883 | 0.790 | 0.606 | 0.515 [0.490, 0.539] |
-| CNN, DP-SGD | 2 | 1.99 | 1.49 | 0.875 | 0.794 | 0.622 | 0.506 [0.482, 0.528] |
-| CNN, DP-SGD | 1 | 1.00 | 2.50 | 0.867 | 0.780 | 0.603 | 0.502 [0.479, 0.526] |
+Mean ± sample sd over 3 seeds. Each seed is a full training run with a different initialisation, batch sampling and
+noise draw; the data split is the same for all of them.
 
-Generated from `artifacts/metrics/runs/*.json` and `artifacts/metrics/membership_inference.json`; full table in
+| model | achieved ε (δ = 10⁻⁵) | noise multiplier | test AUROC | balanced acc. | F1 (MI) | membership-attack AUROC |
+|---|---|---|---|---|---|---|
+| CNN, non-private | – (no guarantee) | – | **0.942 ± 0.006** | 0.863 ± 0.008 | 0.736 ± 0.003 | 0.535 ± 0.002 |
+| CNN, DP-SGD, target ε = 8 | 7.99 | 0.75 | 0.887 ± 0.003 | 0.796 ± 0.006 | 0.626 ± 0.013 | 0.517 ± 0.006 |
+| CNN, DP-SGD, target ε = 4 | 4.00 | 1.01 | 0.884 ± 0.003 | 0.794 ± 0.003 | 0.620 ± 0.014 | 0.511 ± 0.006 |
+| CNN, DP-SGD, target ε = 2 | 1.99 | 1.49 | 0.874 ± 0.005 | 0.785 ± 0.008 | 0.613 ± 0.009 | 0.504 ± 0.005 |
+| CNN, DP-SGD, target ε = 1 | 1.00 | 2.50 | 0.864 ± 0.009 | 0.778 ± 0.013 | 0.597 ± 0.021 | 0.499 ± 0.004 |
+
+Generated from `artifacts/metrics/runs/*.json` and `artifacts/metrics/membership_inference.json`. Every individual
+run, with its bootstrap CI for the attack, is in
 [`artifacts/reports/results_summary.md`](artifacts/reports/results_summary.md).
 
 ![privacy-utility](artifacts/figures/privacy_utility.png)
 ![membership inference vs epsilon](artifacts/figures/mia_vs_epsilon.png)
 
 **What the numbers say, and what they don't.**
-- **Utility.** DP-SGD costs 6–8 AUROC points. Most of the cost appears as soon as clipping and noise are on: going
-  from ε = 8 to ε = 1 loses only 2 more points.
-- **Calibration.** The DP models are poorly calibrated. Their validation-chosen thresholds are below 0.01, against
-  0.19 for the baseline. Ranking (AUROC) holds up better than the 0.5-threshold accuracy would suggest.
-- **Membership inference.** The loss-threshold attack does slightly better than chance against the non-private model
-  (CI excludes 0.5). Against the DP models it is indistinguishable from chance (every CI includes 0.5), and its AUROC
-  falls as ε falls.
-- **Limits of the attack evidence.** The differences between models are small and the CIs overlap, so this is
-  consistent with the theory, not a demonstration of it. The attack is weak; a stronger one could find more leakage
-  in the baseline. The formal guarantee is the accountant's ε, not the attack AUROC.
-- **One seed.** Each configuration was run once. The ordering at ε = 2 vs 4 in balanced accuracy and F1 is within
-  noise.
+- **Utility.** DP-SGD costs 5.5–8 AUROC points. Most of the cost appears as soon as clipping and noise are on: going
+  from ε = 8 to ε = 1 loses only 2.3 more points. Mean AUROC falls at every step from ε = 8 to ε = 1. The ε = 8 and
+  ε = 4 results overlap within one sd; the steps to ε = 2 and ε = 1 (about 0.01 each) are larger than the spread.
+- **Calibration.** The DP models are poorly calibrated. Their validation-chosen thresholds are 0.003–0.010, against
+  0.19–0.40 for the baseline. Ranking (AUROC) holds up better than the 0.5-threshold accuracy would suggest.
+- **Membership inference.** The loss-threshold attack does better than chance against all three non-private models
+  (each run's 95% bootstrap CI excludes 0.5; mean AUROC 0.535). Against every one of the 12 DP models its CI
+  includes 0.5. The mean attack AUROC falls steadily with ε: 0.517 at ε = 8 down to 0.499 at ε = 1.
+- **Limits of the attack evidence.** The effect is small in absolute terms, so this is consistent with the theory,
+  not a demonstration of it. The attack is weak; a stronger one could find more leakage in the baseline. The formal
+  guarantee is the accountant's ε, not the attack AUROC.
+- **Seeds.** Three seeds measure training randomness only, not the uncertainty from the particular test fold.
 
 ## Private summary statistics (all 21,799 records, total ε = 1.0, δ = 10⁻⁶)
 
@@ -177,7 +181,7 @@ The baseline uses the same CNN, Adam with lr 0.001, batch 128 and 12 epochs. It 
   this repo's history touched the same training data, and that exploration is not accounted for.
 * **Secure RNG is off.** `torchcsprng` has no build for the installed PyTorch. Floating-point Laplace sampling has
   known side channels (Mironov 2012). This is a research implementation.
-* **One seed, one train/test split.** The membership attack is a simple threshold attack.
+* **Three seeds, one train/test split.** The membership attack is a simple threshold attack.
 
 ## API and dashboard
 

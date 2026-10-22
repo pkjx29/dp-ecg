@@ -23,7 +23,8 @@
 Results are repeatable on the same machine and library versions. Bit-identical results across hardware or versions
 are not guaranteed.
 
-**Multi-seed runs.** Add seeds to `dp_sgd.yaml: train.seeds`. Each DP run takes about 4 minutes on an 8-core CPU.
+**Seeds.** `baseline.yaml` and `dp_sgd.yaml` list `train.seeds: [0, 1, 2]`, giving 15 runs in total (about 2 minutes
+per baseline run and 2.5–4 minutes per DP run on an 8-core CPU). Reports show mean ± sample sd across seeds.
 
 **Recorded per run:**
 - requested and achieved ε, δ, noise multiplier, C, sample rate, steps, epochs, accountant, secure mode
