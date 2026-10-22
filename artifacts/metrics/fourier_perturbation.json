@@ -1,0 +1,102 @@
+{
+  "query": "mean 12-lead median-beat template per class (12 x 70 samples, 100 Hz)",
+  "clip_norm_l2": 8.0,
+  "share_of_records_clipped": 0.0596551724137931,
+  "records_without_beats": 1,
+  "count_share_of_epsilon": 0.1,
+  "gaussian_delta": 1e-06,
+  "repeats": 200,
+  "composition": "NORM and MI are disjoint: the two class releases compose in parallel",
+  "best_k_per_epsilon": [
+    {
+      "class": "MI",
+      "epsilon": 0.1,
+      "k": 2.0,
+      "rel_error": 0.9945456614774136,
+      "fpa_gaussian_best_rel_error": 0.671793496356717,
+      "lpa_rel_error": 11.814906823621723,
+      "gaussian_rel_error": 1.040074133161033
+    },
+    {
+      "class": "MI",
+      "epsilon": 0.3,
+      "k": 3.0,
+      "rel_error": 0.8124559991506493,
+      "fpa_gaussian_best_rel_error": 0.2901573613149854,
+      "lpa_rel_error": 3.9247562549278734,
+      "gaussian_rel_error": 0.3712809995189344
+    },
+    {
+      "class": "MI",
+      "epsilon": 1.0,
+      "k": 12.0,
+      "rel_error": 0.4927707647090348,
+      "fpa_gaussian_best_rel_error": 0.10524174154528929,
+      "lpa_rel_error": 1.1755025435252633,
+      "gaussian_rel_error": 0.12067768802093581
+    },
+    {
+      "class": "MI",
+      "epsilon": 3.0,
+      "k": 20.0,
+      "rel_error": 0.23412979866678513,
+      "fpa_gaussian_best_rel_error": 0.04050877429277489,
+      "lpa_rel_error": 0.3948075409025817,
+      "gaussian_rel_error": 0.044122512795364006
+    },
+    {
+      "class": "MI",
+      "epsilon": 10.0,
+      "k": 25.0,
+      "rel_error": 0.0879430899800549,
+      "fpa_gaussian_best_rel_error": 0.014254916976603624,
+      "lpa_rel_error": 0.1179151645873506,
+      "gaussian_rel_error": 0.015337094806758409
+    },
+    {
+      "class": "NORM",
+      "epsilon": 0.1,
+      "k": 6.0,
+      "rel_error": 0.7451598304974586,
+      "fpa_gaussian_best_rel_error": 0.18877494204445697,
+      "lpa_rel_error": 2.508766592485474,
+      "gaussian_rel_error": 0.22076310734586435
+    },
+    {
+      "class": "NORM",
+      "epsilon": 0.3,
+      "k": 15.0,
+      "rel_error": 0.42250779598881427,
+      "fpa_gaussian_best_rel_error": 0.07249731069288366,
+      "lpa_rel_error": 0.8321156031561153,
+      "gaussian_rel_error": 0.07896128501800632
+    },
+    {
+      "class": "NORM",
+      "epsilon": 1.0,
+      "k": 20.0,
+      "rel_error": 0.17717774906106057,
+      "fpa_gaussian_best_rel_error": 0.02386106021717847,
+      "lpa_rel_error": 0.25089956237150773,
+      "gaussian_rel_error": 0.025631590034064664
+    },
+    {
+      "class": "NORM",
+      "epsilon": 3.0,
+      "k": 25.0,
+      "rel_error": 0.06915524107928428,
+      "fpa_gaussian_best_rel_error": 0.009323226043863106,
+      "lpa_rel_error": 0.08326152976117644,
+      "gaussian_rel_error": 0.009348904267414233
+    },
+    {
+      "class": "NORM",
+      "epsilon": 10.0,
+      "k": 30.0,
+      "rel_error": 0.021413015557692417,
+      "fpa_gaussian_best_rel_error": 0.0033588626011454713,
+      "lpa_rel_error": 0.025188957336431766,
+      "gaussian_rel_error": 0.0032531820928083854
+    }
+  ]
+}
