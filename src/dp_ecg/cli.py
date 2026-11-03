@@ -18,7 +18,9 @@ def main(argv: list[str] | None = None) -> None:
     tb.add_argument("--epochs", type=int)
     td = sub.add_parser("train-dp", help="DP-SGD sweep over configs/dp_sgd.yaml target epsilons")
     td.add_argument("--epochs", type=int)
-    sub.add_parser("attack", help="membership inference on every completed run")
+    sub.add_parser("attack", help="threshold membership inference on every completed run")
+    sub.add_parser("lira", help="LiRA attack: shadow models per configuration (about 100 min on CPU)")
+    sub.add_parser("fourier", help="Fourier perturbation (FPA_k) study on mean beat templates")
     sub.add_parser("report", help="figures and Markdown summary from saved artifacts")
     sub.add_parser("smoke", help="whole pipeline on a tiny SYNTHETIC dataset (not PTB-XL results)")
     sv = sub.add_parser("serve", help="FastAPI + Gradio dashboard")
@@ -61,6 +63,13 @@ def main(argv: list[str] | None = None) -> None:
         out = run_membership_inference()
         for rid, r in out["results"].items():
             print(rid, round(r["attacks"]["loss"]["auroc"], 4))
+    elif args.cmd == "lira":
+        from .experiments import run_lira
+        for name, r in run_lira()["results"].items():
+            print(name, round(r["auroc"], 4), round(r["tpr_at_fpr_0.001"], 4))
+    elif args.cmd == "fourier":
+        from .evaluation.fourier_study import run_fourier_study
+        print(json.dumps(run_fourier_study()["best_k_per_epsilon"], indent=2))
     elif args.cmd == "report":
         from .evaluation.reports import generate_all
         print(generate_all())
@@ -69,6 +78,8 @@ def main(argv: list[str] | None = None) -> None:
         recs = run_training(synthetic=True, epochs=1)
         assert all(r["status"] == "completed" for r in recs), "smoke run failed"
         run_membership_inference(synthetic=True)
+        from .experiments import run_lira
+        run_lira(synthetic=True, n_models=4, epochs=1)
         print("smoke test passed (synthetic data; not PTB-XL results)")
     elif args.cmd == "serve":
         import uvicorn

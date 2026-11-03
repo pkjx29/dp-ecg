@@ -12,6 +12,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from matplotlib.ticker import NullFormatter, NullLocator
 
@@ -157,6 +158,41 @@ def membership_plots(runs: pd.DataFrame) -> pd.DataFrame | None:
     return df
 
 
+def lira_report() -> pd.DataFrame | None:
+    """LiRA summary table and log-log ROC with the DP hypothesis-testing bound."""
+    path = artifact_dir("metrics") / "lira.json"
+    if not path.exists():
+        return None
+    lira = json.loads(path.read_text())["results"]
+    rows = [{"config": name, "achieved_epsilon": r["achieved_epsilon_mean"], "lira_auroc": r["auroc"],
+             "tpr_at_fpr_0.001": r["tpr_at_fpr_0.001"], "dp_bound_tpr_at_fpr_0.001": r.get("dp_bound_tpr_at_fpr_0.001"),
+             "tpr_at_fpr_0.01": r["tpr_at_fpr_0.01"], "dp_bound_tpr_at_fpr_0.01": r.get("dp_bound_tpr_at_fpr_0.01"),
+             "n_scores": r["n_scores"]} for name, r in lira.items()]
+    df = pd.DataFrame(rows)
+
+    fig, ax = plt.subplots(figsize=(6, 5))
+    colours = plt.cm.viridis([0.05, 0.3, 0.55, 0.8])
+    dp_names = [n for n in lira if n != "baseline"]
+    grid = np.logspace(-5, 0, 200)
+    for name, col in zip(dp_names, colours):
+        r = lira[name]
+        ax.plot(r["roc"]["fpr"], r["roc"]["tpr"], color=col, lw=1.5, label=f"DP-SGD, ε={r['target_epsilon']:g}")
+        ax.plot(grid, np.minimum(1, np.exp(r["achieved_epsilon_mean"]) * grid + load_config("dp_sgd")["delta"]),
+                color=col, ls=":", lw=1)
+    if "baseline" in lira:
+        b = lira["baseline"]["roc"]
+        ax.plot(b["fpr"], b["tpr"], color=RED, lw=2, label="non-private")
+    ax.plot(grid, grid, color="#999999", ls="--", lw=1, label="chance")
+    ax.set(xscale="log", yscale="log", xlim=(1e-4, 1), ylim=(1e-4, 1), xlabel="false positive rate",
+           ylabel="true positive rate", title="LiRA membership attack (dotted: DP bound e^ε·FPR + δ)")
+    ax.legend(fontsize=8, loc="lower right")
+    ax.grid(True, which="both", alpha=0.2)
+    fig.tight_layout()
+    fig.savefig(artifact_dir("figures") / "lira_roc.png", dpi=150)
+    plt.close(fig)
+    return df
+
+
 def mechanism_verification_report() -> dict:
     cfg = load_config("privacy_mechanisms")["verification"]
     report = verify_all(cfg["epsilon"], cfg["delta"])
@@ -199,6 +235,10 @@ def write_summary(runs: pd.DataFrame, mia: pd.DataFrame | None) -> str:
                                         "loss_balanced_accuracy"])), "",
                "## Membership inference, every run (95% bootstrap CI of the loss-attack AUROC)", "",
                _md_table(mia.sort_values(["kind", "requested_epsilon", "seed"]).drop(columns=["kind"])), ""]
+    lira = lira_report()
+    if lira is not None:
+        md += ["## LiRA (online, 16 shadow models per configuration, each on a random half of the training folds)",
+               "", _md_table(lira), ""]
     text = "\n".join(md)
     (artifact_dir("reports") / "results_summary.md").write_text(text)
     return text

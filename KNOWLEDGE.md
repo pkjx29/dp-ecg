@@ -208,6 +208,26 @@ AUC is not expected to fall monotonically with ε, because the differences are s
 
 ---
 
+### 10b. LiRA, the stronger attack (Carlini et al. 2022)
+
+A threshold attack uses one global cut-off. That fails because some records are hard for every model, so a high
+loss means nothing for them, while others are easy, so even a slightly low loss is suspicious. LiRA calibrates
+**per record**:
+1. Train K = 16 shadow models with the same recipe, each on a random half of the 9,286 training records. Each
+   record is IN for about 8 models and OUT for about 8.
+2. For every model and record, take φ = log(p_y/(1−p_y)), the logit of the true-label probability. Across models φ
+   is close to Gaussian, which the raw loss is not.
+3. To attack model i on record x, fit N(μ_in, σ_in²) and N(μ_out, σ_out²) to φ(x) over the *other* models, then
+   score with the likelihood ratio log N(φ_i; in) − log N(φ_i; out). With K = 16 the variances are pooled across
+   records (global variance), as the paper recommends for small K.
+4. Every model takes a turn as the target. Membership ground truth is exact, from the masks.
+
+The reported metric is the **TPR at a low FPR** (0.1% and 1%), the regime that matters for an attacker who must be
+confident. For an (ε, δ)-DP training run every attack satisfies **TPR ≤ e^ε·FPR + δ**, the hypothesis-testing view of
+DP (Kairouz et al. 2015). The LiRA plot draws that ceiling for each ε, so the measured curve can be compared with
+what the theory allows. The shadow models use half the data, so their noise multiplier for a given ε differs from
+the full-data runs. LiRA audits the training recipe at that ε, not the exact published checkpoints.
+
 ## 11. Common bugs and their fixes
 
 | bug | symptom | fix |
@@ -225,6 +245,40 @@ AUC is not expected to fall monotonically with ε, because the differences are s
 GroupNorm; LSTM becomes Opacus' DPLSTM). If ε explodes, check the sample rate and steps in the run JSON.
 If accuracy collapses, lower σ (higher ε), increase the batch size, or reduce the model size.
 
+## 11b. Fourier perturbation (Rastogi & Nath 2010)
+
+**Query.** The mean 12-lead median beat per class: 12 leads × 70 samples, from −250 to +450 ms around the R peak.
+Each record's template is clipped to L2 norm ≤ C = 8, the same idea as per-example clipping in DP-SGD, so the
+*sum* of templates has L2 sensitivity C. The mean is computed as NoisySum/NoisyCount, with 10% of ε on the count.
+NORM and MI records are disjoint, so the two releases compose in **parallel**: releasing both costs ε, not 2ε.
+
+**FPA_k.**
+1. Take the orthonormal DFT per lead and keep F₀..F_{k−1}.
+2. Write the kept coefficients as the real vector u = (F₀, √2·Re F_j, √2·Im F_j).
+3. Add noise, undo the √2, mirror the coefficients (F_{N−j} = conj F_j), and invert.
+
+By Parseval, ‖x‖² = |F₀|² + 2Σ|F_j|² + …, so u is a contraction: its L2 sensitivity is ≤ C. The √2 is the subtle
+part. Each F_j stores energy twice (itself and its mirror), so noising F_j directly over-noises by √2. Adding
+the √2 measurably lowered the error.
+* Laplace: L1 ≤ √(L(2k−1))·L2, so b = √(L(2k−1))·C/ε. Laplace on all 840 samples (LPA) needs b = √840·C/ε.
+* Gaussian: σ comes from Δ₂ = C directly, with no √dimension factor at all.
+
+**Result** (`artifacts/figures/fourier_error_vs_k.png`): relative L2 error of the MI template (n = 2,531) at ε = 1,
+with the best k for each mechanism:
+
+| mechanism | relative error |
+|---|---|
+| Laplace on all samples (LPA) | 1.18 |
+| FPA_k, Laplace (k = 12) | 0.49 |
+| Gaussian on all samples (δ = 10⁻⁶) | 0.12 |
+| Fourier + Gaussian (best k) | 0.105 |
+
+The lesson is that the Fourier trick mostly pays back the √dimension cost of converting L2 sensitivity into L1 for
+Laplace. The Gaussian mechanism never pays that cost, so truncation helps it only at small ε, where removing noisy
+high-frequency coefficients is worth the truncation error (for example, MI at ε = 0.1: 0.67 vs 1.04). The truncation
+error itself shows as ringing (the Gibbs phenomenon) around the sharp QRS complex. Choosing k and C by looking at
+the error uses the data. This is a study of the mechanisms, and a real release would fix both in advance.
+
 ## 12. Extending to patient-level DP
 
 Group records by patient, sample *patients* with Poisson sampling, compute each patient's gradient as the sum
@@ -241,4 +295,4 @@ library versions are not guaranteed.
 
 Dwork & Roth 2014 · Balle & Wang, ICML 2018 · Abadi et al., CCS 2016 · Mironov, CSF 2017 and CCS 2012 ·
 Yeom et al., CSF 2018 · Carlini et al., S&P 2022 (LiRA) · Yousefpour et al. 2021 (Opacus) ·
-Papernot & Steinke, ICLR 2022 · Wagner et al., *Scientific Data* 2020 (PTB-XL) · Rastogi & Nath, SIGMOD 2010.
+Papernot & Steinke, ICLR 2022 · Kairouz, Oh & Viswanath, ICML 2015 · Wagner et al., *Scientific Data* 2020 (PTB-XL) · Rastogi & Nath, SIGMOD 2010.

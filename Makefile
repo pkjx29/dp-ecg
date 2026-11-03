@@ -19,11 +19,15 @@ train:
 	$(CLI) train-baseline && $(CLI) train-dp
 attack:
 	$(CLI) attack
+lira:
+	$(CLI) lira
+fourier:
+	$(CLI) fourier
 report:
 	$(CLI) report
 smoke:
 	$(CLI) smoke
 serve:
 	$(CLI) serve
-all: data verify stats train attack report
-.PHONY: install test lint data verify stats train attack report smoke serve all
+all: data verify stats train attack lira fourier report
+.PHONY: install test lint data verify stats train attack lira fourier report smoke serve all

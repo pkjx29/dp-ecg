@@ -16,6 +16,7 @@ import numpy as np
 import pandas as pd
 import torch
 
+from .attacks.lira import lira_scores, logit_confidence, random_masks, summarise
 from .attacks.membership import attack_scores, evaluate_attack, split_members
 from .config import artifact_dir, load_config, resolve
 from .data.dataset import ECGDataset
@@ -165,4 +166,66 @@ def run_membership_inference(synthetic: bool = False) -> dict:
            "results": results, "roc_loss_attack": roc}
     name = "membership_inference_smoke.json" if synthetic else "membership_inference.json"
     (artifact_dir("metrics") / name).write_text(json.dumps(out, indent=2))
+    return out
+
+
+def run_lira(synthetic: bool = False, n_models: int | None = None, epochs: int | None = None) -> dict:
+    """Train K shadow models per configuration on random halves of the training
+    folds, then run online LiRA. Per-model confidences are cached in
+    artifacts/checkpoints/lira/ (git-ignored) so an interrupted run resumes."""
+    data_cfg, base_cfg, dp_cfg = load_config("data"), load_config("baseline"), load_config("dp_sgd")
+    cfg = load_config("attack")["lira"]
+    k = n_models or cfg["n_models"]
+    waveforms, manifest = load_data(data_cfg, synthetic)
+    labels = manifest["label"].to_numpy()
+    pool, va = _split(manifest, "train"), _split(manifest, "val")
+    x_val, y_val = ECGDataset(waveforms, labels, va).tensors()
+    x_pool, y_pool = ECGDataset(waveforms, labels, pool).tensors()
+    masks = random_masks(k, len(pool), np.random.default_rng(cfg["seed"]))
+    cache_root = artifact_dir("checkpoints") / ("lira_smoke" if synthetic else "lira")
+
+    results = {}
+    for conf in cfg["configs"]:
+        private = conf != "baseline"
+        name = "baseline" if not private else f"dp_eps{float(conf):g}"
+        train_cfg = dict((dp_cfg if private else base_cfg)["train"])
+        if epochs is not None:
+            train_cfg["epochs"] = epochs
+        privacy = (PrivacySettings(float(conf), dp_cfg["delta"], dp_cfg["max_grad_norm"], dp_cfg["accountant"],
+                                   dp_cfg["poisson_sampling"], dp_cfg["secure_mode"]) if private else None)
+        cache = cache_root / name
+        cache.mkdir(parents=True, exist_ok=True)
+        phi, achieved = np.zeros((k, len(pool))), []
+        for i in range(k):
+            f = cache / f"model_{i:02d}.npz"
+            if f.exists() and not synthetic:
+                z = np.load(f)
+                if np.array_equal(z["mask"], masks[i]):
+                    phi[i] = z["phi"]
+                    achieved.append(float(z["eps"]))
+                    continue
+            log.info("LiRA %s shadow %d/%d", name, i + 1, k)
+            res = train_model(build_model(base_cfg["model"]), ECGDataset(waveforms, labels, pool[masks[i]]),
+                              x_val, y_val.numpy(), train_cfg, 1000 + i, privacy)
+            phi[i] = logit_confidence(predict_scores(res.model, x_pool), y_pool.numpy())
+            eps = res.privacy["achieved_epsilon"] if res.privacy else float("nan")
+            achieved.append(eps)
+            np.savez(f, phi=phi[i], mask=masks[i], eps=eps)
+        scores, member = lira_scores(phi, masks)
+        target = float(conf) if private else None
+        results[name] = {"kind": "dp_sgd" if private else "baseline", "target_epsilon": target,
+                         "achieved_epsilon_mean": float(np.mean(achieved)) if private else None,
+                         **summarise(scores, member, max(achieved) if private else None,
+                                     dp_cfg["delta"] if private else None, tuple(cfg["fpr_targets"]))}
+        log.info("LiRA %s AUROC %.4f TPR@0.1%% %.4f", name, results[name]["auroc"],
+                 results[name]["tpr_at_fpr_0.001"])
+    out = {"protocol": {"variant": "online LiRA, global variances, leave-one-model-out",
+                        "n_models_per_config": k, "pool": "training folds 1-8", "pool_size": int(len(pool)),
+                        "inclusion_probability": 0.5, "mask_seed": cfg["seed"],
+                        "attacker_knowledge": "record, true label, model's predicted probability; "
+                                              "ability to train shadow models with the same recipe",
+                        "synthetic_smoke_test": synthetic},
+           "results": results}
+    fname = "lira_smoke.json" if synthetic else "lira.json"
+    (artifact_dir("metrics") / fname).write_text(json.dumps(out, indent=2))
     return out

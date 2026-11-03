@@ -7,3 +7,9 @@ fpr_targets: [0.01, 0.1]
 # Non-members for threshold calibration: validation fold. Non-members for
 # evaluation: test fold. Members: two disjoint random halves of the training
 # set, sized to match. The test fold is never used to set a threshold.
+
+lira:                      # Carlini et al. 2022, online variant with global variances
+  n_models: 16             # per configuration; each trains on a random half of the training folds
+  seed: 11
+  configs: [baseline, 8.0, 4.0, 2.0, 1.0]   # "baseline" or a DP-SGD target epsilon
+  fpr_targets: [0.001, 0.01]
