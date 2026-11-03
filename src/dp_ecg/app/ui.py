@@ -46,6 +46,8 @@ def build_ui() -> gr.Blocks:
         for name, caption in [("privacy_utility.png", "Utility vs achieved ε"),
                               ("mia_vs_epsilon.png", "Membership-inference AUROC vs ε"),
                               ("mia_roc.png", "Attack ROC curves"),
+                              ("lira_roc.png", "LiRA shadow-model attack vs the DP bound"),
+                              ("fourier_error_vs_k.png", "Fourier perturbation: error vs k"),
                               ("dp_mean_error.png", "DP mean: observed vs theoretical error")]:
             path = artifact_dir("figures") / name
             if path.exists():

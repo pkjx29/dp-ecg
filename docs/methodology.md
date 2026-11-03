@@ -26,6 +26,11 @@ Derivations are in [KNOWLEDGE.md](../KNOWLEDGE.md); this page states the experim
    - Evaluation: train half B vs fold 10, balanced.
    - AUROC with a 1,000-sample bootstrap CI, balanced accuracy, precision and recall at the calibrated threshold,
      and TPR at FPR 1% and 10%.
+9. **LiRA.** 16 shadow models per configuration, each trained with the target recipe on a random half of folds
+   1–8 (mask seed 11). Online LiRA with global variances, leave-one-model-out. Report AUROC and TPR at FPR 0.1% and
+   1%, next to the DP bound e^ε·FPR + δ.
+10. **Fourier perturbation.** Mean 12-lead median beat per class, templates clipped to L2 ≤ 8; FPA_k vs LPA vs
+    analytic Gaussian at ε ∈ {0.1, 0.3, 1, 3, 10}, 200 draws each. A mechanism study: k is picked using the error.
 
 For a binary model, max probability and entropy are monotone functions of each other, so their AUROCs are identical
 by construction.

@@ -61,3 +61,13 @@ Task: PTB-XL NORM vs MI, record-level DP, test fold 10 (n = 1,168). Each seed is
 | dp_eps8_seed0 | 0 | 8.0000 | 7.9901 | 0.5210 | 0.5122 | 0.5122 | 0.4952 | 0.5415 | 0.0197 | 0.5034 |
 | dp_eps8_seed1 | 1 | 8.0000 | 7.9901 | 0.5101 | 0.5016 | 0.5016 | 0.4885 | 0.5338 | 0.0154 | 0.5026 |
 | dp_eps8_seed2 | 2 | 8.0000 | 7.9901 | 0.5194 | 0.5103 | 0.5103 | 0.4972 | 0.5434 | 0.0214 | 0.5120 |
+
+## LiRA (online, 16 shadow models per configuration, each on a random half of the training folds)
+
+| config | achieved_epsilon | lira_auroc | tpr_at_fpr_0.001 | dp_bound_tpr_at_fpr_0.001 | tpr_at_fpr_0.01 | dp_bound_tpr_at_fpr_0.01 | n_scores |
+|---|---|---|---|---|---|---|---|
+| baseline |  | 0.5169 | 0.0019 |  | 0.0140 |  | 148573 |
+| dp_eps8 | 7.9956 | 0.4964 | 0.0009 | 1.0000 | 0.0108 | 1.0000 | 148573 |
+| dp_eps4 | 3.9919 | 0.4972 | 0.0012 | 0.0545 | 0.0106 | 0.5446 | 148573 |
+| dp_eps2 | 1.9945 | 0.4986 | 0.0010 | 0.0074 | 0.0108 | 0.0736 | 148573 |
+| dp_eps1 | 0.9922 | 0.4987 | 0.0012 | 0.0027 | 0.0105 | 0.0271 | 148573 |
