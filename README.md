@@ -7,11 +7,12 @@ measured at ε = 1, 2, 4 and 8, and a membership-inference attack tests what the
 
 > Research code, not a medical device. Model scores are experimental outputs, not diagnoses.
 
-**Status (3 Nov 2026).**
+**Status (23 Nov 2026).**
 - Done: everything below has been run on this machine on the full PTB-XL data: three seeds per configuration
   (15 training runs), a threshold membership attack, a LiRA shadow-model attack (80 shadow models), and a
   Fourier-domain perturbation study (Rastogi & Nath 2010).
-- Not done: the Docker image has not been built (Docker daemon unavailable here) and the dashboard is not deployed.
+- Docker: the image builds from this repository and the container serves the API and dashboard (checked 23 Nov 2026).
+- Not done: the dashboard is not deployed.
 
 ---
 
@@ -185,11 +186,14 @@ appears in two splits; the code checks this. See [docs/dataset_card.md](docs/dat
 
 ## Reproduce
 
-Requires Python ≥ 3.10, about 1.5 GB of disk, and a CPU. On an 8-core laptop the download takes about 25 minutes and everything else about 25 minutes.
+Requires Python ≥ 3.12 (the pinned NumPy and SciPy need it), about 1.5 GB of disk, and a CPU. On an 8-core laptop the download takes about 25 minutes and everything else about 25 minutes.
 
 ```bash
 make install
 ```
+
+If `python3` is older than 3.12, name the interpreter: `make install PYTHON=python3.12`.
+
 ```bash
 make all
 ```
@@ -260,9 +264,9 @@ The dashboard shows only saved results and "pending" when they are missing. It a
 
 ## Docker and deployment
 
-`Dockerfile` (non-root, health check, port 7860) and `docker-compose.yml` are provided. **The image has not been built
-or tested yet**, because no Docker daemon was available on the development machine. Build commands and the
-Hugging Face Spaces procedure are in [docs/deployment.md](docs/deployment.md). Nothing is deployed.
+`Dockerfile` (non-root, health check, port 7860) and `docker-compose.yml` are provided. The image builds and the
+container passes its health check and serves the API and dashboard. Build commands and the Hugging Face Spaces
+procedure are in [docs/deployment.md](docs/deployment.md). Nothing is deployed yet.
 
 ## Repository layout
 

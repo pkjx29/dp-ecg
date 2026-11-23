@@ -7,7 +7,7 @@ name = "dp-ecg"
 version = "0.2.0"
 description = "Differentially private ECG classification on PTB-XL: from-scratch DP mechanisms, Opacus DP-SGD, membership inference"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "Priyanshu Kumar Jha" }]
 
@@ -28,7 +28,7 @@ filterwarnings = [
 
 [tool.ruff]
 line-length = 120
-target-version = "py310"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP"]

@@ -1,6 +1,6 @@
 # Deployment
 
-**Status: deployment-ready files, NOT built or deployed.** No Docker daemon was available while developing.
+**Status: the Docker image builds and runs locally (checked 23 Nov 2026); nothing is deployed yet.**
 
 ## Local Docker
 

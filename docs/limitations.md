@@ -20,6 +20,5 @@
   sampling is vulnerable to the attack in Mironov (2012). Use OpenDP or Tumult for real releases.
 
 **Engineering**
-* The Docker image has not been built (no Docker daemon on the development machine).
 * Nothing is deployed.
 * Training is CPU-only and was tested on macOS arm64. CI runs on Ubuntu with CPU PyTorch.

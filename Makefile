@@ -1,10 +1,11 @@
 # Full pipeline:  make install data verify stats train attack report
+PYTHON ?= python3
 PY ?= .venv/bin/python
 CLI = $(PY) -m dp_ecg.cli
 export PYTHONPATH := $(CURDIR)/src
 
 install:
-	python3 -m venv .venv && $(PY) -m pip install -r requirements-dev.txt && $(PY) -m pip install -e .
+	$(PYTHON) -m venv .venv && $(PY) -m pip install -r requirements-dev.txt && $(PY) -m pip install -e .
 test:
 	$(PY) -m pytest -q
 lint:
