@@ -5,6 +5,8 @@ universe. They are used for budgeted private summary statistics over all 21,799 
 separates normal ECGs from myocardial infarction is trained with and without DP-SGD (Opacus), the accuracy cost is
 measured at ε = 1, 2, 4 and 8, and a membership-inference attack tests what the privacy budget buys in practice.
 
+**Results page: [pkjx29.github.io/dp-ecg/](https://pkjx29.github.io/dp-ecg/)** (static, built from the saved results).
+
 > Research code, not a medical device. Model scores are experimental outputs, not diagnoses.
 
 **Status (23 Nov 2026).**
@@ -12,7 +14,8 @@ measured at ε = 1, 2, 4 and 8, and a membership-inference attack tests what the
   (15 training runs), a threshold membership attack, a LiRA shadow-model attack (80 shadow models), and a
   Fourier-domain perturbation study (Rastogi & Nath 2010).
 - Docker: the image builds from this repository and the container serves the API and dashboard (checked 23 Nov 2026).
-- Not done: the dashboard is not deployed.
+- Online: a static results page on GitHub Pages (https://pkjx29.github.io/dp-ecg/). The interactive FastAPI + Gradio dashboard runs
+  locally or in Docker; it is not hosted.
 
 ---
 
@@ -63,7 +66,7 @@ configuration, half of them members. 80 shadow models in total; the DP ones reac
 |---|---|---|---|---|---|
 | non-private | 0.517 | 0.19% | – | 1.40% | – |
 | DP-SGD, ε = 8 | 0.496 | 0.09% | 100% | 1.08% | 100% |
-| DP-SGD, ε = 4 | 0.497 | 0.12% | 5.5% | 1.06% | 54% |
+| DP-SGD, ε = 4 | 0.497 | 0.12% | 5.4% | 1.06% | 54% |
 | DP-SGD, ε = 2 | 0.499 | 0.10% | 0.74% | 1.08% | 7.4% |
 | DP-SGD, ε = 1 | 0.499 | 0.12% | 0.27% | 1.05% | 2.7% |
 
@@ -214,7 +217,7 @@ skipped on re-runs; delete a run's JSON to redo it.
 make test
 ```
 
-`make test` runs 81 tests with pytest, all on synthetic data, so no download is needed. `make smoke` runs the whole
+`make test` runs 82 tests with pytest, all on synthetic data, so no download is needed. `make smoke` runs the whole
 pipeline on a tiny synthetic dataset; its numbers are never PTB-XL results.
 
 Settings live in [`configs/`](configs). The experiment protocol is in
@@ -266,7 +269,10 @@ The dashboard shows only saved results and "pending" when they are missing. It a
 
 `Dockerfile` (non-root, health check, port 7860) and `docker-compose.yml` are provided. The image builds and the
 container passes its health check and serves the API and dashboard. Build commands and the Hugging Face Spaces
-procedure are in [docs/deployment.md](docs/deployment.md). Nothing is deployed yet.
+procedure are in [docs/deployment.md](docs/deployment.md).
+
+The results page at https://pkjx29.github.io/dp-ecg/ is built by `scripts/build_site.py` (standard library only) from the files in
+`artifacts/`, and `.github/workflows/pages.yml` publishes it on every push that changes them.
 
 ## Repository layout
 
@@ -274,6 +280,7 @@ procedure are in [docs/deployment.md](docs/deployment.md). Nothing is deployed y
 configs/        YAML settings (data, baseline, dp_sgd, privacy_mechanisms, attack incl. LiRA)
 src/dp_ecg/     privacy/  data/  models/  training/  attacks/  evaluation/  app/  cli.py  experiments.py
 tests/          unit/  privacy/  integration/  smoke/
+scripts/        build_site.py (static results page for GitHub Pages)
 artifacts/      metrics/  figures/  reports/   (checkpoints/ and logs/ are git-ignored)
 docs/           architecture, methodology, threat model, dataset card, protocol, limitations, deployment
 KNOWLEDGE.md    derivations and design decisions

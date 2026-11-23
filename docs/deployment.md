@@ -24,7 +24,23 @@ checkpoints, so `/predict` returns 404 by design.
 
 To enable `/predict` locally, mount a DP checkpoint read-only. Never publish the non-private baseline checkpoint.
 
+## GitHub Pages (static results page, live)
+
+https://pkjx29.github.io/dp-ecg/ is a single static page built from the committed artifacts:
+
+```bash
+python scripts/build_site.py --out _site
+```
+
+`.github/workflows/pages.yml` runs that on every push to `main` that touches `artifacts/` or the script, and
+deploys `_site/` with `actions/deploy-pages`. The repository's Pages source is set to "GitHub Actions". The page
+needs no Python packages, data or checkpoints, and has no server code.
+
 ## Hugging Face Spaces (Docker SDK)
+
+**Note (Nov 2026):** Hugging Face now requires a PRO subscription to host Docker and Gradio Spaces, including on
+free CPU hardware; only static Spaces are free. That is why the results are published on GitHub Pages instead.
+
 
 1. Create a Space at https://huggingface.co/new-space and choose the **Docker** SDK.
 2. Copy `deployment/huggingface/README.md` (which has the Space metadata, `sdk: docker`, `app_port: 7860`) to the

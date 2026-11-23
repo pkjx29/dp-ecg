@@ -20,5 +20,5 @@
   sampling is vulnerable to the attack in Mironov (2012). Use OpenDP or Tumult for real releases.
 
 **Engineering**
-* Nothing is deployed.
+* Only a static results page is online (GitHub Pages); the interactive dashboard is not hosted.
 * Training is CPU-only and was tested on macOS arm64. CI runs on Ubuntu with CPU PyTorch.

@@ -13,3 +13,4 @@ __pycache__/
 .DS_Store
 .env
 artifacts/metrics/lira_smoke.json
+_site/
